@@ -1,0 +1,40 @@
+# Maintainer: Your Name <your.email@example.com>
+pkgname=java-duck-ai-chat
+pkgver=0.1.0
+pkgrel=1
+pkgdesc="Clean-room implementation of the DuckDuckGo AI Web UI in Scala"
+arch=('any')
+url="http://winlogon.ddns.net/winlogon/duck-ai-chat"
+license=('unknown')
+depends=('java-runtime' 'sbt')
+makedepends=('git' 'sbt')
+source=("git+https://winlogon.ddns.net/winlogon/duck-ai-cli.git")
+sha256sums=('SKIP')  # Use 'SKIP' for git sources
+
+pkg() {
+    cd "$srcdir/duck-ai-chat"
+
+    # Compile the project using sbt
+    sbt assembly
+
+    # Create the necessary directories
+    install -Dm755 target/scala-2.13/duck-ai-chat-assembly-*.jar "$pkgdir/usr/share/java/duck-ai-chat/duck-ai-chat.jar"
+    
+    # Create a shell script to run the application
+    cat << EOF > "$pkgdir/usr/bin/duck-ai-chat"
+#!/bin/sh
+exec /usr/bin/java -jar '/usr/share/java/duck-ai-chat/duck-ai-chat.jar' "\$@"
+EOF
+
+    # Make the script executable
+    chmod +x "$pkgdir/usr/bin/duck-ai-chat"
+
+    # Optionally, you can add other files to /usr/share/duck-ai-chat
+    # install -Dm644 somefile "$pkgdir/usr/share/duck-ai-chat/somefile"
+}
+
+# Optional: You can define a check() function if you want to run tests
+# check() {
+#     cd "$srcdir/duck-ai-chat"
+#     sbt test
+# }
