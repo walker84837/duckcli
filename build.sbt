@@ -19,6 +19,13 @@ lazy val root = (project in file("."))
     //libraryDependencies += munit % Test
   )
 
+// Merge strategy for avoiding conflicts in dependencies
+assemblyMergeStrategy in assembly := {
+  case PathList("META-INF", xs @ _*) => MergeStrategy.discard
+  case _ => MergeStrategy.first
+}
+
+mainClass in assembly := Some("org.winlogon.Main")
 
 libraryDependencies ++= Seq(
   "com.softwaremill.sttp.client3" %% "core" % "3.10.1",
