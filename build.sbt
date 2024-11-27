@@ -4,8 +4,12 @@ ThisBuild / scalaVersion     := "2.13.14"
 ThisBuild / version          := "0.1.0-SNAPSHOT"
 ThisBuild / organization     := "org.winlogon"
 ThisBuild / organizationName := "winlogon"
-ThisBuild / githubWorkflowJavaVersions += JavaSpec.temurin("17")
 Compile / mainClass := Some("Main")
+
+// GitHub CI
+ThisBuild / githubWorkflowJavaVersions += JavaSpec.temurin("17")
+ThisBuild / publishTo := None
+publish / skip := true
 
 crossScalaVersions := Seq("2.12.20", "2.13.15")
 
