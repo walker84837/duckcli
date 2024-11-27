@@ -75,7 +75,7 @@ object Main {
     )
 
     val body = Json.obj(
-      "model" -> "meta-llama/Meta-Llama-3.1-70B-Instruct-Turbo".asJson,
+      "model" -> model.asJson,
       "messages" -> Json.arr(Json.obj("role" -> "user".asJson, "content" -> prompt.asJson))
     )
 
@@ -116,6 +116,11 @@ object Main {
       .completer(completer)
       .build()
 
+    println("Models:")
+    println("- gpt-4o-mini")
+    println("- claude-3")
+    println("- llama-3.1")
+    println("- mixtral")
     val modelInput = lineReader.readLine("Enter model (default is llama-3.1): ")
     val selectedModel = if (modelInput.isEmpty) "llama-3.1" else modelInput
 
