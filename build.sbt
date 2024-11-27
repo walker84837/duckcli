@@ -8,7 +8,7 @@ Compile / mainClass := Some("Main")
 
 lazy val root = (project in file("."))
   .settings(
-    name := "duck-ai-cli",
+    name := "duckcli",
     //libraryDependencies += munit % Test
   )
 
