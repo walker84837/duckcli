@@ -74,6 +74,7 @@ object Main {
       "Sec-GPC" -> "1"
     )
 
+    // println(s"Log: $model")
     val body = Json.obj(
       "model" -> model.asJson,
       "messages" -> Json.arr(Json.obj("role" -> "user".asJson, "content" -> prompt.asJson))
@@ -117,10 +118,7 @@ object Main {
       .build()
 
     println("Models:")
-    println("- gpt-4o-mini")
-    println("- claude-3")
-    println("- llama-3.1")
-    println("- mixtral")
+    models.keys.foreach(key => println(s"- $key"))
     val modelInput = lineReader.readLine("Enter model (default is llama-3.1): ")
     val selectedModel = if (modelInput.isEmpty) "llama-3.1" else modelInput
 

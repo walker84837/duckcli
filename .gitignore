@@ -1,5 +1,6 @@
 # Compiled Java class files
 /.bsp/
+/.metals/
 target/
 
 # Binary files and logs
