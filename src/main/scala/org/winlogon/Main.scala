@@ -47,11 +47,19 @@ object Main {
     val headers = Map(
       "User-Agent" -> "Mozilla/5.0 (X11; Linux x86_64; rv:132.0) Gecko/20100101 Firefox/132.0",
       "Accept" -> "*/*",
+      "Accept-Language" -> "en-US,en;q=0.5",
+      "Accept-Encoding" -> "gzip, deflate, br, zstd",
       "Referer" -> "https://duckduckgo.com/",
-      "Origin" -> "https://duckduckgo.com",
-      "x-vqd-accept" -> "1",
+      "Cache-Control" -> "no-store",
+      "DNT" -> "1",
+      "Sec-GPC" -> "1",
       "Connection" -> "keep-alive",
-      "Cookie" -> "dcm=5; ah=it-it; l=wt-wt"
+      "Cookie" -> "dcm=5; dcs=1; ah=it-it; l=wt-wt",
+      "Sec-Fetch-Dest" -> "empty",
+      "Sec-Fetch-Mode" -> "cors",
+      "Sec-Fetch-Site" -> "same-origin",
+      "Priority" -> "u=4",
+      "TE" -> "trailers"
     )
 
     logger.info("Fetching token to start conversation...")
@@ -85,15 +93,24 @@ object Main {
     val headers = Map(
       "User-Agent" -> "Mozilla/5.0 (X11; Linux x86_64; rv:132.0) Gecko/20100101 Firefox/132.0",
       "Accept" -> "text/event-stream",
+      "Accept-Language" -> "en-US,en;q=0.5",
+      "Accept-Encoding" -> "gzip, deflate, br, zstd",
       "Content-Type" -> "application/json",
+      "Origin" -> "https://duckduckgo.com",
+      "DNT" -> "1",
+      "Sec-GPC" -> "1",
       "x-vqd-4" -> token,
-      "Sec-GPC" -> "1"
+      "Cookie" -> "dcm=5; dcs=1; ah=it-it; l=wt-wt",
+      "Sec-Fetch-Dest" -> "empty",
+      "Sec-Fetch-Mode" -> "cors",
+      "Sec-Fetch-Site" -> "same-origin",
+      "Priority" -> "u=4",
+      "TE" -> "trailers"
     )
-
+    
     val body = Json.obj(
       "model" -> model.asJson,
       "messages" -> Json.arr(Json.obj("role" -> "user".asJson, "content" -> prompt.asJson)),
-      "stream" -> true.asJson
     )
 
     logger.info(s"Sending prompt to $model")
