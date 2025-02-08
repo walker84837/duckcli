@@ -1,4 +1,6 @@
-ThisBuild / scalaVersion     := "3.3.4"
+val scalaBuildVersion = "3.3.5"
+
+ThisBuild / scalaVersion     := scalaBuildVersion
 ThisBuild / version          := "0.1.0-SNAPSHOT"
 ThisBuild / organization     := "org.winlogon"
 ThisBuild / organizationName := "winlogon"
@@ -10,7 +12,7 @@ ThisBuild / githubWorkflowOSes := Seq("ubuntu-latest", "windows-latest", "macos-
 ThisBuild / publishTo := None
 publish / skip := true
 
-crossScalaVersions := Seq("3.3.4")
+crossScalaVersions := Seq(scalaBuildVersion)
 
 lazy val root = (project in file("."))
   .settings(
