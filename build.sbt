@@ -1,17 +1,18 @@
-// import Dependencies._
+val scalaBuildVersion = "3.3.5"
 
-ThisBuild / scalaVersion     := "2.13.14"
+ThisBuild / scalaVersion     := scalaBuildVersion
 ThisBuild / version          := "0.1.0-SNAPSHOT"
 ThisBuild / organization     := "org.winlogon"
 ThisBuild / organizationName := "winlogon"
 Compile / mainClass := Some("org.winlogon.Main")
 
 // GitHub CI
-ThisBuild / githubWorkflowJavaVersions += JavaSpec.temurin("17")
+ThisBuild / githubWorkflowJavaVersions := Seq(JavaSpec.temurin("17"), JavaSpec.temurin("21"))
+ThisBuild / githubWorkflowOSes := Seq("ubuntu-latest", "windows-latest", "macos-latest")
 ThisBuild / publishTo := None
 publish / skip := true
 
-crossScalaVersions := Seq("2.12.20", "2.13.15")
+crossScalaVersions := Seq(scalaBuildVersion)
 
 lazy val root = (project in file("."))
   .settings(
@@ -34,7 +35,7 @@ libraryDependencies ++= Seq(
   "io.circe" %% "circe-parser" % "0.14.10",
   "org.jline" % "jline" % "3.26.3",
   "org.jline" % "jline-reader" % "3.26.0",
-  "org.jline" % "jline-terminal" % "3.26.0"
+  "org.jline" % "jline-terminal" % "3.26.0",
+  "ch.qos.logback" % "logback-classic" % "1.2.10",
+  "com.typesafe.scala-logging" %% "scala-logging" % "3.9.4",
 )
-
-// See https://www.scala-sbt.org/1.x/docs/Using-Sonatype.html for instructions on how to publish to Sonatype.
