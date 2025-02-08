@@ -1,46 +1,62 @@
 package org.winlogon
 
 import sttp.client3._
-import sttp.client3.circe._
 import sttp.client3.asynchttpclient.future.AsyncHttpClientFutureBackend
+import sttp.client3.circe._
+
 import io.circe.Json
 import io.circe.parser._
 import io.circe.syntax._
-import org.jline.reader.LineReaderBuilder
-import org.jline.terminal.{Terminal, TerminalBuilder}
-import org.jline.reader.{LineReader, Completer, ParsedLine}
 
-import scala.concurrent.duration._
-import scala.concurrent.{Await, Future}
+import org.jline.reader.LineReaderBuilder
+import org.jline.reader.{LineReader, Completer, ParsedLine}
+import org.jline.terminal.{Terminal, TerminalBuilder}
+import org.slf4j.LoggerFactory
+
+import ch.qos.logback.classic.Level
+import ch.qos.logback.classic.{Logger => LogbackLogger, Level}
+
+import com.typesafe.scalalogging.Logger
+
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.Duration
+import scala.concurrent.duration._
+import scala.concurrent.{Await, Future}
 import scala.util.{Failure, Success}
 
 object Main {
   implicit val backend: SttpBackend[Future, Any] = AsyncHttpClientFutureBackend()
 
+  // Initialize logger
+  val rootLogger = LoggerFactory.getLogger(org.slf4j.Logger.ROOT_LOGGER_NAME).asInstanceOf[LogbackLogger]
+  rootLogger.setLevel(Level.INFO)
+  val logger = Logger("DuckCLI")
+
+
   // List of models
   val models = Map(
+    "o3-mini" -> "o3-mini",
     "gpt-4o-mini" -> "gpt-4o-mini",
     "claude-3" -> "claude-3-haiku-20240307",
-    "llama-3.1" -> "meta-llama/Meta-Llama-3.1-70B-Instruct-Turbo",
+    "llama" -> "meta-llama/Llama-3.3-70B-Instruct-Turbo",
     "mixtral" -> "mistralai/Mixtral-8x7B-Instruct-v0.1"
   )
 
-  // Fetch the token
   def fetchToken(): Future[Option[String]] = {
     val url = "https://duckduckgo.com/duckchat/v1/status"
     val headers = Map(
       "User-Agent" -> "Mozilla/5.0 (X11; Linux x86_64; rv:132.0) Gecko/20100101 Firefox/132.0",
       "Accept" -> "*/*",
       "Referer" -> "https://duckduckgo.com/",
+      "Origin" -> "https://duckduckgo.com",
       "x-vqd-accept" -> "1",
       "Connection" -> "keep-alive",
       "Cookie" -> "dcm=5; ah=it-it; l=wt-wt"
     )
 
+    logger.info("Fetching token to start conversation...")
     basicRequest
-      .head(uri"$url")
+      .get(uri"$url")
       .headers(headers)
       .send(backend)
       .map { response =>
@@ -53,12 +69,12 @@ object Main {
       }
   }
 
-  // Fetch messages, split into 3 functions
   def fetchMessages(token: Option[String], prompt: String, model: String): Future[Unit] = {
+    logger.info("Checking whether token is valid...")
     token match {
       case Some(t) => sendMessage(t, prompt, model).flatMap(processStream)
       case None =>
-        println("No token provided.")
+        logger.error("No token provided.")
         Future.successful(())
     }
   }
@@ -74,12 +90,13 @@ object Main {
       "Sec-GPC" -> "1"
     )
 
-    // println(s"Log: $model")
     val body = Json.obj(
       "model" -> model.asJson,
-      "messages" -> Json.arr(Json.obj("role" -> "user".asJson, "content" -> prompt.asJson))
+      "messages" -> Json.arr(Json.obj("role" -> "user".asJson, "content" -> prompt.asJson)),
+      "stream" -> true.asJson
     )
 
+    logger.info(s"Sending prompt to $model")
     basicRequest
       .post(uri"$url")
       .headers(headers)
@@ -89,7 +106,7 @@ object Main {
       .map { response =>
         if (response.code.isSuccess) response.body.getOrElse("")
         else {
-          println(s"Request failed with status: ${response.code}")
+          logger.error(s"Request failed with status: ${response.code}")
           ""
         }
       }
@@ -119,8 +136,8 @@ object Main {
 
     println("Models:")
     models.keys.foreach(key => println(s"- $key"))
-    val modelInput = lineReader.readLine("Enter model (default is llama-3.1): ")
-    val selectedModel = if (modelInput.isEmpty) "llama-3.1" else modelInput
+    val modelInput = lineReader.readLine("Enter model (default is llama): ")
+    val selectedModel = if (modelInput.isEmpty) "llama" else modelInput
 
     val prompt = lineReader.readLine("Enter prompt: ")
 
